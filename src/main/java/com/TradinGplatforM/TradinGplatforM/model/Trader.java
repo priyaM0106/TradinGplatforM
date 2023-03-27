@@ -8,6 +8,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @DynamicUpdate
@@ -21,8 +23,11 @@ public class Trader {
     @Email
     @Column(name="email", unique = true)
     private String email;
-    @Column(name="balance")
-    private Float balance;
+    @Column(name="initial_balance")
+    private Float initialBalance;
+
+    @Column(name="total_balance")
+    private Float totalBalance;
     @CreationTimestamp()
     @Column(name="createdAt",nullable=false, updatable = false)
     private LocalDateTime createdAt;
@@ -31,18 +36,34 @@ public class Trader {
 
     private LocalDateTime updatedAt;
 
-    public Trader(long id, String name, String email, Float balance, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
+
+    @OneToMany(cascade =CascadeType.ALL,orphanRemoval=true)
+    @JoinColumn(name="traderId", referencedColumnName = "id")
+    List<History> history=new ArrayList<>();
+
+    public Trader(String name, String email, Float initialBalance,Float totalBalance, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.name = name;
         this.email = email;
-        this.balance = balance;
+        this.initialBalance = initialBalance;
+        this.totalBalance=totalBalance;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+    }
+
+    public Trader(String name, String email, Float initialBalance) {
+        this.name = name;
+        this.email = email;
+        this.initialBalance = initialBalance;
     }
      public Trader()
      {
 
      }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
     public long getId() {
         return id;
     }
@@ -50,18 +71,18 @@ public class Trader {
     @Override
     public String toString() {
         return "Trader{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
+                "name='" + name + '\'' +
                 ", email='" + email + '\'' +
-                ", balance=" + balance +
+                ", initialBalance=" + initialBalance +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" +  updatedAt +
+                ", totalBalance"+ totalBalance+
                 '}';
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
+    //public void setId(long id) {
+     //   this.id = id;
+   // }
 
     public String getName() {
         return name;
@@ -79,12 +100,21 @@ public class Trader {
         this.email = email;
     }
 
-    public Float getBalance() {
-        return balance;
+    public Float getInitialBalance() {
+        return initialBalance;
     }
 
-    public void setBalance(Float balance) {
-        this.balance = balance;
+    public void setInitialBalance(Float initialBalance) {
+        this.initialBalance = initialBalance;
+        this.totalBalance=initialBalance;
+    }
+
+    public Float getTotalBalance() {
+        return totalBalance;
+    }
+
+    public void setTotalBalance(Float totalBalance) {
+        this.totalBalance = totalBalance;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -102,6 +132,14 @@ public class Trader {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+    public void setHistory(List<History> history) {
+        this.history = history;
+    }
+
+    public List<History> getHistory(){
+        return this.history;
+    }
+
 
 
 
